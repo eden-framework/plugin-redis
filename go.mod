@@ -10,5 +10,5 @@ replace (
 require (
 	github.com/eden-framework/eden-framework v1.0.12
 	github.com/go-redis/redis/v8 v8.2.1
-	github.com/profzone/envconfig v1.4.4
+	github.com/profzone/envconfig v1.4.5
 )
