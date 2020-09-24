@@ -10,7 +10,7 @@ import (
 type GenerationPlugin struct {
 }
 
-func (g *GenerationPlugin) NewApplicationGenerationPoint(opt generator.ServiceOption, cwd string) string {
+func (g *GenerationPlugin) GenerateEntryPoint(opt generator.ServiceOption, cwd string) string {
 	globalPkgPath := path.Join(opt.PackageName, "internal/global")
 	globalFilePath := path.Join(cwd, "internal/global")
 	tpl := fmt.Sprintf(`,
@@ -18,7 +18,7 @@ func (g *GenerationPlugin) NewApplicationGenerationPoint(opt generator.ServiceOp
 	return tpl
 }
 
-func (g *GenerationPlugin) FileGenerationPoint(opt generator.ServiceOption, cwd string) *files.GoFile {
+func (g *GenerationPlugin) GenerateFilePoint(opt generator.ServiceOption, cwd string) []*files.GoFile {
 	file := files.NewGoFile("global")
 	file.WithBlock(`
 var RedisConfig = struct {
@@ -31,5 +31,5 @@ var RedisConfig = struct {
 }
 `)
 
-	return file
+	return []*files.GoFile{file}
 }
