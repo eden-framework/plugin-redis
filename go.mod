@@ -1,4 +1,4 @@
-module github.com/eden-framework/redis
+module github.com/eden-framework/plugin-redis
 
 go 1.14
 

@@ -1,4 +1,4 @@
-package redis
+package plugin_redis
 
 import (
 	"fmt"
@@ -22,9 +22,9 @@ func (g *GenerationPlugin) FileGenerationPoint(opt generator.ServiceOption, cwd 
 	file := files.NewGoFile("global")
 	file.WithBlock(`
 var RedisConfig = struct {
-	Redis *{{ .UseWithoutAlias "github.com/eden-framework/redis" "" }}.Redis
+	Redis *{{ .UseWithoutAlias "github.com/eden-framework/plugin-redis" "" }}.Redis
 }{
-	Redis: &{{ .UseWithoutAlias "github.com/eden-framework/redis" "" }}.Redis{
+	Redis: &{{ .UseWithoutAlias "github.com/eden-framework/plugin-redis" "" }}.Redis{
 		Host: "localhost",
 		Port: 6379,
 	},

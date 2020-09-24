@@ -1,4 +1,4 @@
-package redis
+package plugin_redis
 
 import (
 	"context"
