@@ -2,8 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/eden-framework/eden-framework/pkg/generator"
-	"github.com/eden-framework/eden-framework/pkg/generator/files"
+	"github.com/eden-framework/plugins"
 	"path"
 )
 
@@ -12,7 +11,7 @@ var Plugin GenerationPlugin
 type GenerationPlugin struct {
 }
 
-func (g *GenerationPlugin) GenerateEntryPoint(opt generator.ServiceOption, cwd string) string {
+func (g *GenerationPlugin) GenerateEntryPoint(opt plugins.Option, cwd string) string {
 	globalPkgPath := path.Join(opt.PackageName, "internal/global")
 	globalFilePath := path.Join(cwd, "internal/global")
 	tpl := fmt.Sprintf(`,
@@ -20,8 +19,8 @@ func (g *GenerationPlugin) GenerateEntryPoint(opt generator.ServiceOption, cwd s
 	return tpl
 }
 
-func (g *GenerationPlugin) GenerateFilePoint(opt generator.ServiceOption, cwd string) []*files.GoFile {
-	file := files.NewGoFile("global")
+func (g *GenerationPlugin) GenerateFilePoint(opt plugins.Option, cwd string) []*plugins.FileTemplate {
+	file := plugins.NewFileTemplate("global", path.Join(cwd, "internal/global/redis.go"))
 	file.WithBlock(`
 var RedisConfig = struct {
 	Redis *{{ .UseWithoutAlias "github.com/eden-framework/plugin-redis/redis" "" }}.Redis
@@ -33,5 +32,5 @@ var RedisConfig = struct {
 }
 `)
 
-	return []*files.GoFile{file}
+	return []*plugins.FileTemplate{file}
 }
