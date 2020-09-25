@@ -24,9 +24,9 @@ func (g *GenerationPlugin) GenerateFilePoint(opt generator.ServiceOption, cwd st
 	file := files.NewGoFile("global")
 	file.WithBlock(`
 var RedisConfig = struct {
-	Redis *{{ .UseWithoutAlias "github.com/eden-framework/plugin-redis" "" }}.Redis
+	Redis *{{ .UseWithoutAlias "github.com/eden-framework/plugin-redis/redis" "" }}.Redis
 }{
-	Redis: &{{ .UseWithoutAlias "github.com/eden-framework/plugin-redis" "" }}.Redis{
+	Redis: &{{ .UseWithoutAlias "github.com/eden-framework/plugin-redis/redis" "" }}.Redis{
 		Host: "localhost",
 		Port: 6379,
 	},
