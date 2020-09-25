@@ -2,6 +2,10 @@ module github.com/eden-framework/plugin-redis
 
 go 1.14
 
+replace (
+	github.com/eden-framework/plugins => /Users/liyiwen/Documents/golang/src/github.com/eden-framework/plugins
+)
+
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/eden-framework/plugins v0.0.2
