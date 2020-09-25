@@ -1,4 +1,4 @@
-package plugin_redis
+package main
 
 import (
 	"fmt"
@@ -6,6 +6,8 @@ import (
 	"github.com/eden-framework/eden-framework/pkg/generator/files"
 	"path"
 )
+
+var Plugin GenerationPlugin
 
 type GenerationPlugin struct {
 }
