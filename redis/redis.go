@@ -2,7 +2,9 @@ package redis
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"github.com/eden-framework/common"
 	"github.com/go-redis/redis/v8"
 	"github.com/profzone/envconfig"
 	"time"
@@ -14,6 +16,7 @@ type Redis struct {
 	Port           int
 	User           string
 	Password       envconfig.Password
+	Topic          string
 	MaxRetries     int
 	ConnectTimeout envconfig.Duration
 	ReadTimeout    envconfig.Duration
@@ -84,4 +87,46 @@ func (r *Redis) Init() {
 
 func (r *Redis) Prefix(key string) string {
 	return fmt.Sprintf("%s:%s", "prefix", key)
+}
+
+func (r *Redis) Consume(ctx context.Context, handler func(m common.QueueMessage) error) error {
+	if r.Topic == "" {
+		return errors.New("cannot use Redis as a queue when Topic is not specified")
+	}
+Run:
+	for {
+		select {
+		case <-ctx.Done():
+			break Run
+		default:
+			cmd := r.Client.BRPop(ctx, 0, r.Topic)
+			if cmd.Err() != nil {
+				return cmd.Err()
+			}
+			result := cmd.Val()
+			m := common.QueueMessage{}
+			err := m.UnmarshalBinary([]byte(result[1]))
+			if err != nil {
+				continue
+			}
+			err = handler(m)
+			if err != nil {
+				_ = r.Produce(ctx, m)
+			}
+		}
+	}
+	return nil
+}
+
+func (r *Redis) Produce(ctx context.Context, messages ...common.QueueMessage) error {
+	if r.Topic == "" {
+		return errors.New("cannot use Redis as a queue when Topic is not specified")
+	}
+	for _, m := range messages {
+		cmd := r.Client.LPush(ctx, r.Topic, m)
+		if cmd.Err() != nil {
+			return cmd.Err()
+		}
+	}
+	return nil
 }
