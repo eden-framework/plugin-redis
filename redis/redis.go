@@ -2,6 +2,7 @@ package redis
 
 import (
 	"context"
+	"encoding"
 	"errors"
 	"fmt"
 	"github.com/eden-framework/common"
@@ -131,4 +132,27 @@ func (r *Redis) Produce(ctx context.Context, messages ...common.QueueMessage) er
 		}
 	}
 	return nil
+}
+
+func (r *Redis) Set(ctx context.Context, key string, value encoding.BinaryMarshaler, expire time.Duration) error {
+	data, err := value.MarshalBinary()
+	if err != nil {
+		return err
+	}
+	status := r.Client.Set(ctx, key, data, expire)
+	return status.Err()
+}
+
+func (r *Redis) Get(ctx context.Context, key string, value encoding.BinaryUnmarshaler) error {
+	status := r.Client.Get(ctx, key)
+	data, err := status.Result()
+	if err != nil {
+		return err
+	}
+	return value.UnmarshalBinary([]byte(data))
+}
+
+func (r *Redis) Del(ctx context.Context, keys ...string) error {
+	status := r.Client.Del(ctx, keys...)
+	return status.Err()
 }
