@@ -16,7 +16,6 @@ type Redis struct {
 	Port           int
 	User           string
 	Password       envconfig.Password
-	Topic          string
 	MaxRetries     int
 	ConnectTimeout envconfig.Duration
 	ReadTimeout    envconfig.Duration
@@ -89,9 +88,9 @@ func (r *Redis) Prefix(key string) string {
 	return fmt.Sprintf("%s:%s", "prefix", key)
 }
 
-func (r *Redis) Consume(ctx context.Context, handler func(m common.QueueMessage) error) error {
-	if r.Topic == "" {
-		return errors.New("cannot use Redis as a queue when Topic is not specified")
+func (r *Redis) Consume(ctx context.Context, topic string, handler func(m common.QueueMessage) error) error {
+	if topic == "" {
+		return errors.New("[Redis] cannot use Redis as a queue when topic is not specified")
 	}
 Run:
 	for {
@@ -99,7 +98,7 @@ Run:
 		case <-ctx.Done():
 			break Run
 		default:
-			cmd := r.Client.BRPop(ctx, 0, r.Topic)
+			cmd := r.Client.BRPop(ctx, 0, topic)
 			if cmd.Err() != nil {
 				return cmd.Err()
 			}
@@ -119,12 +118,14 @@ Run:
 }
 
 func (r *Redis) Produce(ctx context.Context, messages ...common.QueueMessage) error {
-	if r.Topic == "" {
-		return errors.New("cannot use Redis as a queue when Topic is not specified")
+	for _, m := range messages {
+		if m.Topic == "" {
+			return fmt.Errorf("[Redis] cannot use Redis as a queue when Topic of message is not specified")
+		}
+		m.Time = time.Now()
 	}
 	for _, m := range messages {
-		m.Time = time.Now()
-		cmd := r.Client.LPush(ctx, r.Topic, m)
+		cmd := r.Client.LPush(ctx, m.Topic, m)
 		if cmd.Err() != nil {
 			return cmd.Err()
 		}
