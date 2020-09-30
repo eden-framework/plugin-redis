@@ -122,9 +122,9 @@ func (r *Redis) Produce(ctx context.Context, messages ...common.QueueMessage) er
 		if m.Topic == "" {
 			return fmt.Errorf("[Redis] cannot use Redis as a queue when Topic of message is not specified")
 		}
-		m.Time = time.Now()
 	}
 	for _, m := range messages {
+		m.Time = time.Now()
 		cmd := r.Client.LPush(ctx, m.Topic, m)
 		if cmd.Err() != nil {
 			return cmd.Err()
